@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import UserOne from '../../images/user/user-01.png';
 import useAuth from '../../hooks/useAuth';
+import { logout } from '@/api/auth';
+import { getItem } from '@/utils/storage';
+import { AuthToken } from '@/types/token';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
@@ -35,6 +39,13 @@ const DropdownUser = () => {
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
   });
+
+  const handleSignOut = async () => {
+    const items = getItem('token') as AuthToken;
+    const { refresh } = items;
+    await logout(refresh.token);
+    navigate('/login');
+  };
 
   return (
     <div className="relative">
@@ -154,7 +165,10 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button
+          className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+          onClick={handleSignOut}
+        >
           <svg
             className="fill-current"
             width="22"

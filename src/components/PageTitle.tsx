@@ -1,18 +1,15 @@
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async';
 
 interface PageTitleProps {
   title: string;
 }
 
 const PageTitle: React.FC<PageTitleProps> = ({ title }) => {
-  const location = useLocation();
-
-  useEffect(() => {
-    document.title = title;
-  }, [location, title]);
-
-  return null; // This component doesn't render anything
+  return (
+    <Helmet>
+      <title>{title} - Chess</title>
+    </Helmet>
+  );
 };
 
 export default PageTitle;

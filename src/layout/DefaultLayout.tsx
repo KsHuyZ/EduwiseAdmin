@@ -1,7 +1,8 @@
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, Suspense } from 'react';
 import Header from '../components/Header/index';
 import Sidebar from '../components/Sidebar/index';
 import { Outlet } from 'react-router-dom';
+import Loader from '@/common/Loader';
 
 const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,7 +24,9 @@ const DefaultLayout = () => {
           {/* <!-- ===== Main Content Start ===== --> */}
           <main>
             <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-              <Outlet />
+              <Suspense fallback={<Loader />}>
+                <Outlet />
+              </Suspense>
             </div>
           </main>
           {/* <!-- ===== Main Content End ===== --> */}

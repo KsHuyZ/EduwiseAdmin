@@ -19,7 +19,7 @@ export const requestInterceptor = (
   const authToken = getItem('token') as AuthToken | null;
 
   if (authToken?.access) {
-    config.headers.set('Authorization', `Bearer ${authToken.access.token}`);
+    config.headers.Authorization = `Bearer ${authToken.access.token}`;
   }
   return config;
 };
@@ -29,20 +29,17 @@ export const successInterceptor = (response: AxiosResponse): AxiosResponse => {
 };
 
 export const errorInterceptor = async (error: AxiosError): Promise<void> => {
-  console.log('err: ', error);
-  const originalRequest = error.config;
-  if (
-    (error.status === 401 || error.status === 403) &&
-    !originalRequest._retry
-  ) {
-    originalRequest._retry = true;
+  const errorResponse = error.response;
+  const originalRequest = errorResponse?.config;
+  console.log(errorResponse?.status);
+  if (errorResponse?.status === 401 || errorResponse?.status === 403) {
     const token = getItem('token') as AuthToken;
     const refresh = token.refresh.token;
-    if (!refresh) {
+    if (refresh) {
       const result = await refreshToken(refresh);
       setItem('token', result);
-      originalRequest.headers.Authorization = 'Bearer ' + result.access.token;
-      return await api(originalRequest);
+      originalRequest!.headers.Authorization = 'Bearer ' + result.access.token;
+      return api(originalRequest!);
     }
   }
   return await Promise.reject(error.response?.data);

@@ -7,8 +7,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import Router from './routes';
 import { ToastContainer } from 'react-toastify';
 
+export const queryClient = new QueryClient();
+
 function App() {
-  const queryClient = new QueryClient();
   const { pathname } = useLocation();
 
   useEffect(() => {
