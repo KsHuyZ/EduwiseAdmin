@@ -9,7 +9,7 @@ import { setItem } from '../../utils/storage';
 import { useLogin } from './hooks';
 import { UserCredential } from '../../types/user';
 import * as yup from 'yup';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../hooks';
 import Input from '../../components/Input';
 
 const loginSchema = yup.object().shape({

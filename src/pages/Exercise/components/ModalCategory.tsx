@@ -56,28 +56,29 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
   const {
     isLoading,
     mutateAsync: createCategory,
-    // error,
+    error,
     isError,
-  } = useCreateCategory();
-  function onSubmit(values: z.infer<typeof schema>) {
-    createCategory({ ...values, createdBy: user?.id });
+  } = useCreateCategory(formValue?.id);
+
+  async function onSubmit(values: z.infer<typeof schema>) {
+    await createCategory({ ...values, createdBy: user?.id });
+    // refetch();
     setOpen(false);
     form.reset();
     toast.success('Create category scucess');
   }
 
-  async function onSubmitUpdate(values: z.infer<typeof schema>) {
-    try {
-      setLoading(true);
-      await updateCategory({ ...values, id: formValue?.id });
-      refetch();
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-      setOpen(false);
-    }
-  }
+  // async function onSubmitUpdate(values: z.infer<typeof schema>) {
+  //   try {
+  //     setLoading(true);
+  //     await updateCategory({ ...values, id: formValue?.id });
+  //   } catch (error: any) {
+  //     toast.error(error.message);
+  //   } finally {
+  //     setLoading(false);
+  //     setOpen(false);
+  //   }
+  // }
   useEffect(() => {
     if (isError) {
       toast.error('Error');
@@ -95,14 +96,11 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {formValue ? 'Update' : 'Add'} Lesson Category
+            {formValue ? 'Update' : 'Add'} Exercise Category
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(formValue ? onSubmitUpdate : onSubmit)}
-            className="space-y-8"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="title"

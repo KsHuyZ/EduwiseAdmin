@@ -13,14 +13,15 @@ import { Input } from '@/components/ui/input';
 import { MoveHistory } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Chess } from 'chess.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import ModalDescription from './components/ModalDescription';
 import { fenRegex } from '@/constant';
-import { useCreateLesson } from './hook';
-import useAuth from '@/hooks/useAuth';
+import { useChangeLesson, useLesson } from './hook';
+import { useAuth } from '@/hooks';
+import { ArrowLeft } from 'lucide-react';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -36,24 +37,28 @@ const defaultValues = {
   description: '',
 };
 
-// const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 const ChangeLesson = () => {
   const { pathname } = useLocation();
-  const { categoryId } = useParams();
+  const { categoryId, lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [movesHistory, setMovesHistory] = useState<MoveHistory[]>([]);
   const [index, setIndex] = useState<number | undefined>(undefined);
-  const { handleSubmit, setError, ...form } = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
-    defaultValues,
-  });
   const [fen, setFen] = useState('');
   const [fenError, setFenError] = useState('');
   const [isSubmit, setIsSubmit] = useState(false);
   const [game, setGame] = useState<Chess | undefined>();
-  const { mutateAsync: createLesson, isLoading } = useCreateLesson(categoryId!);
+  const { mutateAsync: changeLesson, isLoading } = useChangeLesson(
+    categoryId!,
+    lessonId,
+  );
+  const { data: lesson } = useLesson(lessonId);
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues,
+  });
 
   const backMove = () => {
     let array = [...movesHistory];
@@ -66,10 +71,24 @@ const ChangeLesson = () => {
     setGame(new Chess(array[array.length - 1].after));
   };
 
+  useEffect(() => {
+    if (lesson) {
+      form.reset(lesson);
+      setFen(lesson.question);
+      if (
+        !lesson.question ||
+        lesson.question === '' ||
+        !lesson.steps[lesson.steps.length - 1]?.after
+      )
+        return;
+      setGame(new Chess(lesson.steps[lesson.steps.length - 1].after));
+      setMovesHistory(lesson.steps);
+    }
+  }, [lesson]);
+
   const onSubmit = async (values: z.infer<typeof schema>) => {
-    console.log(categoryId);
     if (categoryId) {
-      await createLesson({
+      await changeLesson({
         ...values,
         question: fen,
         steps: movesHistory,
@@ -80,6 +99,12 @@ const ChangeLesson = () => {
     }
   };
   const onSubmitFen = () => {
+    if (fen === '' || fen === undefined) {
+      setFen(initialFen);
+      setGame(new Chess(initialFen));
+      setIsSubmit(false);
+      return;
+    }
     if (!new RegExp(fenRegex).test(fen)) {
       setFenError('Invalid chess fen');
       setIsSubmit(true);
@@ -111,8 +136,11 @@ const ChangeLesson = () => {
         movesHistory={movesHistory}
         setMovesHistory={setMovesHistory}
       />
+      <div className="mb-5">
+        <ArrowLeft className="cursor-pointer" onClick={() => navigate(-1)} />
+      </div>
       <Form {...form}>
-        <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="title"

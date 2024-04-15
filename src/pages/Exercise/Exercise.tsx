@@ -26,19 +26,19 @@ import { useState } from 'react';
 import Button from '@/components/Button';
 import { MoreHorizontal, Pen, Plus, Search, Trash } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useLessonCategoryId } from './hook';
+import { useExerciseCategoryId } from './hook';
 import { useNavigate, useParams } from 'react-router-dom';
 import PageTitle from '@/components/PageTitle';
-import { deleteLesson } from './api';
+// import { deleteLesson } from './api';
 import { toast } from 'react-toastify';
 import { useDebounce } from '@/hooks';
 import { Input } from '@/components/ui/input';
 
-const Lesson = () => {
+export const Exercise = () => {
   const { categoryId } = useParams();
   const [title, setTitle] = useState('');
   const searchTitle = useDebounce(title, 500);
-  const { data, isLoading, refetch } = useLessonCategoryId(
+  const { data, isLoading, refetch } = useExerciseCategoryId(
     categoryId!,
     searchTitle,
   );
@@ -56,7 +56,7 @@ const Lesson = () => {
     setLoading(true);
     try {
       if (confirmDelete.id) {
-        await deleteLesson(confirmDelete.id);
+        // await deleteLesson(confirmDelete.id);
         refetch();
       }
     } catch (error: any) {
@@ -68,7 +68,7 @@ const Lesson = () => {
 
   return (
     <div className="w-full">
-      <PageTitle title="Lesson" />
+      <PageTitle title="Exercise" />
       <AlertDialog
         open={confirmDelete.show}
         onOpenChange={(value) =>
@@ -94,9 +94,9 @@ const Lesson = () => {
       <div className="py-4 flex justify-between items-center">
         <Button
           leftIcon={Plus}
-          onClick={() => navigate(`/lesson-category/${categoryId}/add`)}
+          onClick={() => navigate(`/exercise-category/${categoryId}/add`)}
         >
-          Add Lesson
+          Add Exercise
         </Button>
         <div className="w-2/4">
           <Input
@@ -161,5 +161,3 @@ const Lesson = () => {
     </div>
   );
 };
-
-export default Lesson;

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import UserOne from '../../images/user/user-01.png';
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../hooks';
 import { logout } from '@/api/auth';
 import { getItem } from '@/utils/storage';
 import { AuthToken } from '@/types/token';

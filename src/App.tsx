@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import Router from './routes';
 import { ToastContainer } from 'react-toastify';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function App() {
         </Suspense>
       </HelmetProvider>
       <ToastContainer />
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

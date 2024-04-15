@@ -26,17 +26,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useLessonCategory } from './hook';
+import { useExerciseCategory } from './hook';
 import ModalCategory from './components/ModalCategory';
 import { Skeleton } from '@/components/ui/skeleton';
-import { deleteLessonCategory } from './api';
+import { deleteExerciseCategory } from './api';
 import { Category } from '@/types/category';
 import { Link } from 'react-router-dom';
 import PageTitle from '@/components/PageTitle';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks';
 
-const LessonCatgory = () => {
+export const ExerciseCatgory = () => {
   const [open, setOpen] = useState<{
     show: boolean;
     form: Category | undefined;
@@ -47,7 +47,7 @@ const LessonCatgory = () => {
   const [title, setTitle] = useState('');
   const searchTitle = useDebounce(title, 500);
   const { data, isError, isLoading, refetch, error } =
-    useLessonCategory(searchTitle);
+    useExerciseCategory(searchTitle);
   const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{
     show: boolean;
@@ -61,7 +61,7 @@ const LessonCatgory = () => {
     setLoading(true);
     try {
       if (confirmDelete.id) {
-        await deleteLessonCategory(confirmDelete.id);
+        await deleteExerciseCategory(confirmDelete.id);
         refetch();
       }
     } catch (error: any) {
@@ -73,8 +73,7 @@ const LessonCatgory = () => {
 
   useEffect(() => {
     if (isError) {
-      console.log(error);
-      toast.error('Error');
+      toast.error((error as { message: string }).message);
     }
   }, [isError]);
 
@@ -113,7 +112,6 @@ const LessonCatgory = () => {
         <Button
           leftIcon={Plus}
           onClick={() => setOpen({ show: true, form: undefined })}
-          className="w-1/5"
         >
           Add Category
         </Button>
@@ -139,7 +137,7 @@ const LessonCatgory = () => {
           <p>No results</p>
         ) : (
           data.results.map(({ id, title, description }) => (
-            <Link to={'/lesson-category/' + id}>
+            <Link to={'/exercise-category/' + id}>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex justify-between">
@@ -151,9 +149,10 @@ const LessonCatgory = () => {
                       <DropdownMenuContent className="w-56">
                         <DropdownMenuLabel>Action</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-
                         <DropdownMenuItem
-                          onClick={(e) => {
+                          onClick={(
+                            e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+                          ) => {
                             e.stopPropagation();
                             setOpen({
                               show: true,
@@ -167,7 +166,12 @@ const LessonCatgory = () => {
                         <DropdownMenuSeparator />
 
                         <DropdownMenuItem
-                          onClick={() => setConfirmDelete({ show: true, id })}
+                          onClick={(
+                            e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+                          ) => {
+                            e.stopPropagation();
+                            setConfirmDelete({ show: true, id });
+                          }}
                         >
                           <Trash className="mr-2 h-4 w-4" />
                           <span>Delete</span>
@@ -187,5 +191,3 @@ const LessonCatgory = () => {
     </div>
   );
 };
-
-export default LessonCatgory;

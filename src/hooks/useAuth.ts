@@ -15,7 +15,7 @@ const initialState: Pick<AuthStore, keyof AuthState> = {
   user: getItem('user') as User,
 };
 
-const useAuth = create<AuthStore>()((set) => ({
+export const useAuth = create<AuthStore>()((set) => ({
   ...initialState,
   setUser: (user) => {
     set(() => {
@@ -31,5 +31,3 @@ const useAuth = create<AuthStore>()((set) => ({
     });
   },
 }));
-
-export default useAuth;
