@@ -1,6 +1,6 @@
+import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { Plus, Search } from 'lucide-react';
-import { toast } from 'react-toastify';
 import { Card } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -61,6 +61,8 @@ const Lesson = () => {
       if (confirmDelete.id) {
         await deleteLesson(confirmDelete.id);
         refetch();
+        setConfirmDelete((prev) => ({ id: undefined, show: false }));
+        toast.success('Delete success');
       }
     } catch (error: any) {
       toast.error(error.message);

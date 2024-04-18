@@ -1,3 +1,11 @@
+import toast from 'react-hot-toast';
+import { ArrowLeft } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Chess } from 'chess.js';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { z } from 'zod';
 import Button from '@/components/Button';
 import ChessTable from '@/components/Chess/ChessTable';
 import PageTitle from '@/components/PageTitle';
@@ -11,17 +19,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MoveHistory } from '@/types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Chess } from 'chess.js';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { z } from 'zod';
-import ModalDescription from './components/ModalDescription';
-import { fenRegex } from '@/constant';
-import { useChangeExercise, useExercise } from './hook';
 import { useAuth } from '@/hooks';
-import { ArrowLeft } from 'lucide-react';
+import { fenRegex } from '@/constant';
+import ModalDescription from './components/ModalDescription';
+import { useChangeExercise, useExercise } from './hook';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -50,10 +51,12 @@ const ChangeExercise = () => {
   const [fenError, setFenError] = useState('');
   const [isSubmit, setIsSubmit] = useState(false);
   const [game, setGame] = useState<Chess | undefined>();
-  const { mutateAsync: changeExercise, isLoading } = useChangeExercise(
-    categoryId!,
-    exerciseId,
-  );
+  const {
+    mutateAsync: changeExercise,
+    isLoading,
+    isError,
+    error,
+  } = useChangeExercise(categoryId!, exerciseId);
 
   const { data: exercise } = useExercise(exerciseId);
   const form = useForm<z.infer<typeof schema>>({
@@ -87,6 +90,12 @@ const ChangeExercise = () => {
     }
   }, [exercise]);
 
+  useEffect(() => {
+    if (isError) {
+      toast.error((error as { message: string }).message);
+    }
+  }, [isError]);
+
   const onSubmit = async (values: z.infer<typeof schema>) => {
     if (categoryId) {
       await changeExercise({
@@ -97,6 +106,7 @@ const ChangeExercise = () => {
         createdBy: user?.id,
       });
       navigate(-1);
+      toast.success(`${exerciseId ? 'Update' : 'Create'} exercise success!`);
     }
   };
   const onSubmitFen = () => {
@@ -171,6 +181,7 @@ const ChangeExercise = () => {
 
           {!game ? (
             <FormItem>
+              <FormLabel>Question</FormLabel>
               <Input
                 placeholder="Eg: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
                 onChange={(e) => setFen(e.target.value)}

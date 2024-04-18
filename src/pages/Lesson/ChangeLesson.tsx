@@ -1,3 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Chess } from 'chess.js';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { z } from 'zod';
+import { ArrowLeft } from 'lucide-react';
 import Button from '@/components/Button';
 import ChessTable from '@/components/Chess/ChessTable';
 import PageTitle from '@/components/PageTitle';
@@ -11,17 +18,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MoveHistory } from '@/types';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Chess } from 'chess.js';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { z } from 'zod';
-import ModalDescription from './components/ModalDescription';
 import { fenRegex } from '@/constant';
-import { useChangeLesson, useLesson } from './hook';
 import { useAuth } from '@/hooks';
-import { ArrowLeft } from 'lucide-react';
+import ModalDescription from './components/ModalDescription';
+import { useChangeLesson, useLesson } from './hook';
+import toast from 'react-hot-toast';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -50,10 +51,12 @@ const ChangeLesson = () => {
   const [fenError, setFenError] = useState('');
   const [isSubmit, setIsSubmit] = useState(false);
   const [game, setGame] = useState<Chess | undefined>();
-  const { mutateAsync: changeLesson, isLoading } = useChangeLesson(
-    categoryId!,
-    lessonId,
-  );
+  const {
+    mutateAsync: changeLesson,
+    isLoading,
+    isError,
+    error,
+  } = useChangeLesson(categoryId!, lessonId);
   const { data: lesson } = useLesson(lessonId);
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -86,6 +89,12 @@ const ChangeLesson = () => {
     }
   }, [lesson]);
 
+  useEffect(() => {
+    if (isError) {
+      toast.error((error as { message: string }).message);
+    }
+  }, [isError]);
+
   const onSubmit = async (values: z.infer<typeof schema>) => {
     if (categoryId) {
       await changeLesson({
@@ -96,6 +105,8 @@ const ChangeLesson = () => {
         createdBy: user?.id,
       });
       navigate(-1);
+
+      toast.success(`${lessonId ? 'Update' : 'Create'} lesson success!`);
     }
   };
   const onSubmitFen = () => {
@@ -170,6 +181,7 @@ const ChangeLesson = () => {
 
           {!game ? (
             <FormItem>
+              <FormLabel>Question</FormLabel>
               <Input
                 placeholder="Eg: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
                 onChange={(e) => setFen(e.target.value)}

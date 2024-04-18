@@ -1,6 +1,6 @@
+import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { Plus, Search } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import { Link, useSearchParams } from 'react-router-dom';
 import PageTitle from '@/components/PageTitle';
 import Button from '@/components/Button';
@@ -62,6 +62,7 @@ const LessonCatgory = () => {
         await deleteLessonCategory(confirmDelete.id);
         refetch();
         setConfirmDelete({ id: undefined, show: false });
+        toast.success('Delete success');
       }
     } catch (error: any) {
       toast.error(error.message);

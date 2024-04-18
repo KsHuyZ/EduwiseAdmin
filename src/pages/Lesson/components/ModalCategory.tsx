@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useEffect, useState } from 'react';
 import {
   Form,
   FormControl,
@@ -18,9 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import Button from '@/components/Button';
 import { useCreateCategory } from '../hook';
-import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks';
-import { toast } from 'react-toastify';
 import { Category } from '@/types/category';
 import { updateCategory } from '../api';
 
@@ -64,7 +64,7 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
     await createCategory({ ...values, createdBy: user?.id });
     setOpen(false);
     form.reset();
-    toast.success('Create category scucess');
+    toast.success('Create category success');
   }
 
   async function onSubmitUpdate(values: z.infer<typeof schema>) {

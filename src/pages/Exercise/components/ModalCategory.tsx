@@ -1,6 +1,8 @@
+import toast from 'react-hot-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   Form,
   FormControl,
@@ -18,11 +20,8 @@ import {
 import { Input } from '@/components/ui/input';
 import Button from '@/components/Button';
 import { useCreateCategory } from '../hook';
-import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks';
-import { toast } from 'react-toastify';
 import { Category } from '@/types/category';
-import { updateCategory } from '../api';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -35,9 +34,10 @@ const schema = z.object({
 
 interface ModalProps {
   open: boolean;
-  setOpen: (open: boolean) => void;
+  setOpen: Dispatch<
+    SetStateAction<{ show: boolean; form: Category | undefined }>
+  >;
   formValue?: Category;
-  refetch: () => void;
 }
 
 const defaultValues = {
@@ -45,7 +45,7 @@ const defaultValues = {
   description: '',
 };
 
-const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
+const ModalCategory = ({ open, setOpen, formValue }: ModalProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof schema>>({
@@ -62,26 +62,14 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
 
   async function onSubmit(values: z.infer<typeof schema>) {
     await createCategory({ ...values, createdBy: user?.id });
-    // refetch();
-    setOpen(false);
+    setOpen({ form: undefined, show: false });
     form.reset();
-    toast.success('Create category scucess');
+    toast.success(`${formValue ? 'Update' : 'Create'} category scucess`);
   }
 
-  // async function onSubmitUpdate(values: z.infer<typeof schema>) {
-  //   try {
-  //     setLoading(true);
-  //     await updateCategory({ ...values, id: formValue?.id });
-  //   } catch (error: any) {
-  //     toast.error(error.message);
-  //   } finally {
-  //     setLoading(false);
-  //     setOpen(false);
-  //   }
-  // }
   useEffect(() => {
     if (isError) {
-      toast.error('Error');
+      toast.error((error as { message: string }).message);
     }
   }, [isError]);
 
@@ -92,7 +80,10 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
   }, [formValue]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => setOpen((prev) => ({ ...prev, show: value }))}
+    >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>

@@ -56,6 +56,8 @@ export const ExerciseCatgory = () => {
       if (confirmDelete.id) {
         await deleteExerciseCategory(confirmDelete.id);
         refetch();
+        setConfirmDelete({ show: false, id: undefined });
+        toast.success('Delete success');
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -108,12 +110,7 @@ export const ExerciseCatgory = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <ModalCategory
-        open={open.show}
-        setOpen={(value) => setOpen((prev) => ({ ...prev, show: value }))}
-        formValue={open.form}
-        refetch={refetch}
-      />
+      <ModalCategory open={open.show} setOpen={setOpen} formValue={open.form} />
       <div className="py-4 flex justify-between items-center">
         <Button
           leftIcon={Plus}

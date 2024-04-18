@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks';
 import { Input } from '@/components/ui/input';
 import { useExerciseCategoryId } from './hook';
+import { deleteExercise } from './api';
 
 export const Exercise = () => {
   const { categoryId } = useParams();
@@ -27,7 +28,7 @@ export const Exercise = () => {
   const title = searchParams.get('title');
   const page = searchParams.get('page');
   const searchTitle = useDebounce(title!, 500);
-  const { data, isLoading, refetch } = useExerciseCategoryId(
+  const { data, isLoading, refetch, isError, error } = useExerciseCategoryId(
     categoryId!,
     searchTitle,
     page!,
@@ -46,8 +47,10 @@ export const Exercise = () => {
     setLoading(true);
     try {
       if (confirmDelete.id) {
-        // await deleteLesson(confirmDelete.id);
+        await deleteExercise(confirmDelete.id);
         refetch();
+        toast.success('Delete exercise success!');
+        setConfirmDelete({ show: false, id: undefined });
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -55,6 +58,12 @@ export const Exercise = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isError) {
+      toast.error((error as { message: string }).message);
+    }
+  }, [isError]);
 
   const setQueryParamValue = (paramName: string, paramValue: string) => {
     const params = new URLSearchParams(searchParams);

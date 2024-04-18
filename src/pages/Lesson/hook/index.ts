@@ -9,6 +9,7 @@ import {
 } from '../api';
 import { Category } from '@/types/category';
 import { Lesson } from '@/types';
+import toast from 'react-hot-toast';
 
 export const useLessonCategory = (name?: string, page?: string) =>
   useQuery(['lesson-category', name, page], () =>
