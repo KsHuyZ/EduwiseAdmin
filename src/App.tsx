@@ -1,14 +1,19 @@
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import 'react-toastify/dist/ReactToastify.css';
-import Loader from './common/Loader';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
-import Router from './routes';
-import { ToastContainer } from 'react-toastify';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'react-hot-toast';
+import Router from './routes';
 
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      keepPreviousData: true,
+    },
+  },
+});
 
 function App() {
   const { pathname } = useLocation();
@@ -20,11 +25,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
-        <Suspense fallback={<Loader />}>
-          <Router />
-        </Suspense>
+        <Router />
       </HelmetProvider>
-      <ToastContainer />
+      <Toaster />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

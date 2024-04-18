@@ -1,22 +1,12 @@
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Pen, Plus, Search, Trash } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { Plus, Search } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { Link, useSearchParams } from 'react-router-dom';
+import PageTitle from '@/components/PageTitle';
 import Button from '@/components/Button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import Paginations from '@/components/Pagination';
+import CardItem from '@/components/CardItem';
+import { Card } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -26,15 +16,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useLessonCategory } from './hook';
-import ModalCategory from './components/ModalCategory';
 import { Skeleton } from '@/components/ui/skeleton';
-import { deleteLessonCategory } from './api';
 import { Category } from '@/types/category';
-import { Link } from 'react-router-dom';
-import PageTitle from '@/components/PageTitle';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks';
+import ModalCategory from './components/ModalCategory';
+import { useLessonCategory } from './hook';
+import { deleteLessonCategory } from './api';
 
 const LessonCatgory = () => {
   const [open, setOpen] = useState<{
@@ -44,10 +32,14 @@ const LessonCatgory = () => {
     show: false,
     form: undefined,
   });
-  const [title, setTitle] = useState('');
-  const searchTitle = useDebounce(title, 500);
-  const { data, isError, isLoading, refetch, error } =
-    useLessonCategory(searchTitle);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const title = searchParams.get('title');
+  const page = searchParams.get('page');
+  const searchTitle = useDebounce(title!, 500);
+  const { data, isError, isLoading, refetch } = useLessonCategory(
+    searchTitle,
+    page!,
+  );
   const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{
     show: boolean;
@@ -57,12 +49,19 @@ const LessonCatgory = () => {
     id: undefined,
   });
 
+  const setQueryParamValue = (paramName: string, paramValue: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set(paramName, paramValue);
+    setSearchParams(params);
+  };
+
   const handleDelete = async () => {
     setLoading(true);
     try {
       if (confirmDelete.id) {
         await deleteLessonCategory(confirmDelete.id);
         refetch();
+        setConfirmDelete({ id: undefined, show: false });
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -73,7 +72,6 @@ const LessonCatgory = () => {
 
   useEffect(() => {
     if (isError) {
-      console.log(error);
       toast.error('Error');
     }
   }, [isError]);
@@ -113,7 +111,6 @@ const LessonCatgory = () => {
         <Button
           leftIcon={Plus}
           onClick={() => setOpen({ show: true, form: undefined })}
-          className="w-1/5"
         >
           Add Category
         </Button>
@@ -121,67 +118,52 @@ const LessonCatgory = () => {
           <Input
             rightIcon={Search}
             placeholder="Search..."
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setQueryParamValue('title', e.target.value)}
           />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        {isLoading ? (
-          Array.from({ length: 12 }).map(() => (
-            <Card className="p-2">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </Card>
-          ))
-        ) : !data || data.results.length === 0 ? (
-          <p>No results</p>
-        ) : (
-          data.results.map(({ id, title, description }) => (
-            <Link to={'/lesson-category/' + id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex justify-between">
-                    {title}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <MoreHorizontal className="cursor-pointer" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56">
-                        <DropdownMenuLabel>Action</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpen({
-                              show: true,
-                              form: { id, title, description },
-                            });
-                          }}
-                        >
-                          <Pen className="mr-2 h-4 w-4" />
-                          <span>Edit</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          onClick={() => setConfirmDelete({ show: true, id })}
-                        >
-                          <Trash className="mr-2 h-4 w-4" />
-                          <span>Delete</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>{description}</CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-          ))
+      <div className="space-y-2">
+        <div className="min-h-[60vh]">
+          <div className="grid md:grid-cols-3 s:gap-3 sm:grid-cols-2 gap-2 flex-1">
+            {isLoading ? (
+              Array.from({ length: 12 }).map(() => (
+                <Card className="p-2">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </Card>
+              ))
+            ) : !data || data.results.length === 0 ? (
+              <p>No results</p>
+            ) : (
+              data.results.map(({ id, title, description }) => (
+                <Link to={'/lesson-category/' + id} key={id}>
+                  <CardItem
+                    title={title}
+                    description={description}
+                    onUpdate={() =>
+                      setOpen({
+                        show: true,
+                        form: { id, title, description },
+                      })
+                    }
+                    onDelete={() => setConfirmDelete({ show: true, id })}
+                  />
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+        {data && data.results.length > 0 && (
+          <Paginations
+            currentPage={data?.page}
+            itemsPerPage={data.limit}
+            totalItems={data.totalResults}
+            setCurrentPage={(value) =>
+              setQueryParamValue('page', value.toString())
+            }
+          />
         )}
       </div>
     </div>

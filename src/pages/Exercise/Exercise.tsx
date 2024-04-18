@@ -1,18 +1,8 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useState } from 'react';
+import { Plus, Search } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Card } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -22,25 +12,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useState } from 'react';
 import Button from '@/components/Button';
-import { MoreHorizontal, Pen, Plus, Search, Trash } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useExerciseCategoryId } from './hook';
-import { useNavigate, useParams } from 'react-router-dom';
 import PageTitle from '@/components/PageTitle';
-// import { deleteLesson } from './api';
-import { toast } from 'react-toastify';
+import Paginations from '@/components/Pagination';
+import CardItem from '@/components/CardItem';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from '@/hooks';
 import { Input } from '@/components/ui/input';
+import { useExerciseCategoryId } from './hook';
 
 export const Exercise = () => {
   const { categoryId } = useParams();
-  const [title, setTitle] = useState('');
-  const searchTitle = useDebounce(title, 500);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const title = searchParams.get('title');
+  const page = searchParams.get('page');
+  const searchTitle = useDebounce(title!, 500);
   const { data, isLoading, refetch } = useExerciseCategoryId(
     categoryId!,
     searchTitle,
+    page!,
   );
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -64,6 +54,19 @@ export const Exercise = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const setQueryParamValue = (paramName: string, paramValue: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set(paramName, paramValue);
+    setSearchParams(params);
+  };
+
+  const handleChangeTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (page && Number(page) !== 1) {
+      searchParams.set('page', '1');
+    }
+    setQueryParamValue('title', e.target.value);
   };
 
   return (
@@ -102,60 +105,49 @@ export const Exercise = () => {
           <Input
             rightIcon={Search}
             placeholder="Search..."
-            onChange={(e) => setTitle(e.target.value)}
+            value={title!}
+            onChange={handleChangeTitle}
           />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
-        {isLoading ? (
-          Array.from({ length: 12 }).map(() => (
-            <Card className="p-2">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </Card>
-          ))
-        ) : !data || data.results.length === 0 ? (
-          <p>No results</p>
-        ) : (
-          data.results.map(({ id, title, description }) => (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex justify-between">
-                  {title}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <MoreHorizontal className="cursor-pointer" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                      <DropdownMenuLabel>Action</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem
-                        onClick={() =>
-                          navigate(`/lesson-category/${categoryId}/${id}`)
-                        }
-                      >
-                        <Pen className="mr-2 h-4 w-4" />
-                        <span>Edit</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => setConfirmDelete({ show: true, id })}
-                      >
-                        <Trash className="mr-2 h-4 w-4" />
-                        <span>Delete</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>{description}</CardDescription>
-              </CardContent>
-            </Card>
-          ))
+      <div className="space-y-2">
+        <div className="min-h-[60vh]">
+          <div className="grid md:grid-cols-3 s:gap-3 sm:grid-cols-2 gap-2">
+            {isLoading ? (
+              Array.from({ length: 12 }).map(() => (
+                <Card className="p-2">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </Card>
+              ))
+            ) : !data || data.results.length === 0 ? (
+              <p>No results</p>
+            ) : (
+              data.results.map(({ id, title, description }) => (
+                <CardItem
+                  key={id}
+                  title={title}
+                  description={description}
+                  onUpdate={() =>
+                    navigate(`/exercise-category/${categoryId}/${id}`)
+                  }
+                  onDelete={() => setConfirmDelete({ show: true, id })}
+                />
+              ))
+            )}
+          </div>
+        </div>
+        {data && data.results.length > 0 && (
+          <Paginations
+            currentPage={data?.page}
+            itemsPerPage={data.limit}
+            totalItems={data.totalResults}
+            setCurrentPage={(value) =>
+              setQueryParamValue('page', value.toString())
+            }
+          />
         )}
       </div>
     </div>

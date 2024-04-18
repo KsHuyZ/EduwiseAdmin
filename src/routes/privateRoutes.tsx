@@ -5,6 +5,7 @@ import Calendar from '@/pages/Calendar';
 import ECommerce from '@/pages/Dashboard/ECommerce';
 import Lesson from '@/pages/Lesson/Lesson';
 import { Exercise, ExerciseCatgory } from '@/pages/Exercise';
+import ChangeExercise from '@/pages/Exercise/ChangeExercise';
 
 const ChangeLesson = lazy(() => import('@/pages/Lesson/ChangeLesson'));
 
@@ -43,6 +44,14 @@ export const protectedRoutes = [
       {
         path: '/exercise-category/:categoryId',
         element: <Exercise />,
+      },
+      {
+        path: '/exercise-category/:categoryId/add',
+        element: <ChangeExercise />,
+      },
+      {
+        path: '/exercise-category/:categoryId/:exerciseId',
+        element: <ChangeExercise />,
       },
     ],
   },

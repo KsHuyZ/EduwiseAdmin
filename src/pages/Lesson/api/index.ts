@@ -2,11 +2,15 @@ import { api } from '@/lib/api';
 import { Category } from '@/types/category';
 import { Lesson } from '@/types/lesson';
 import { PaginateResponse } from '@/types/response';
+import { removeEmptyParams } from '@/utils';
 
 export const getLessonCategory = (
   title?: string,
+  page?: string,
 ): Promise<PaginateResponse<Category[]>> =>
-  api.get(`/lesson-category${title && title !== '' ? '?title=' + title : ''}`);
+  api.get(`/lesson-category`, {
+    params: removeEmptyParams({ title, page }),
+  });
 export const createLessonCategory = (category: Category): Promise<Category> =>
   api.post('/lesson-category', category);
 export const deleteLessonCategory = (id: string) =>
@@ -16,10 +20,11 @@ export const updateCategory = ({ id, description, title }: Category) =>
 export const getLessonByCategoryId = (
   id: string,
   title: string,
+  page: string,
 ): Promise<PaginateResponse<Lesson[]>> =>
-  api.get(
-    `/lesson/category/${id}${title && title !== '' ? '?title=' + title : ''}`,
-  );
+  api.get(`/lesson/category/${id}`, {
+    params: removeEmptyParams({ title, page }),
+  });
 
 export const createLesson = (lesson: Lesson): Promise<Lesson> =>
   api.post('/lesson', lesson);

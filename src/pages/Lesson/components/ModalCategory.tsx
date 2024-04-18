@@ -59,8 +59,9 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
     // error,
     isError,
   } = useCreateCategory();
-  function onSubmit(values: z.infer<typeof schema>) {
-    createCategory({ ...values, createdBy: user?.id });
+
+  async function onSubmit(values: z.infer<typeof schema>) {
+    await createCategory({ ...values, createdBy: user?.id });
     setOpen(false);
     form.reset();
     toast.success('Create category scucess');
@@ -71,6 +72,7 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
       setLoading(true);
       await updateCategory({ ...values, id: formValue?.id });
       refetch();
+      toast.success('Update category scucess');
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -78,6 +80,7 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
       setOpen(false);
     }
   }
+
   useEffect(() => {
     if (isError) {
       toast.error('Error');
