@@ -1,3 +1,4 @@
+import Notfound from '@/pages/Notfound';
 import Login from '../pages/Login';
 
 export const publicRoutes = [
@@ -6,7 +7,7 @@ export const publicRoutes = [
     path: '/login',
   },
   {
-    element: <h1>Not found</h1>,
+    element: <Notfound />,
     path: '*',
   },
 ];
