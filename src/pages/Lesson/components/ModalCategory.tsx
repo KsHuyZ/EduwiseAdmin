@@ -1,4 +1,6 @@
 import toast from 'react-hot-toast';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -23,6 +25,7 @@ import { useCreateCategory } from '../hook';
 import { useAuth } from '@/hooks';
 import { Category } from '@/types/category';
 import { updateCategory } from '../api';
+import { htmlDecode } from '@/utils';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -70,9 +73,14 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
   async function onSubmitUpdate(values: z.infer<typeof schema>) {
     try {
       setLoading(true);
-      await updateCategory({ ...values, id: formValue?.id });
+      console.log(values);
+      await updateCategory({
+        ...values,
+        description: values.description,
+        id: formValue?.id,
+      });
       refetch();
-      toast.success('Update category scucess');
+      toast.success('Update category success');
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -89,7 +97,12 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
 
   useEffect(() => {
     if (formValue) {
-      form.reset(formValue);
+      form.reset({
+        ...formValue,
+        description: htmlDecode(formValue.description),
+      });
+    } else {
+      form.reset({ title: '', description: '' });
     }
   }, [formValue]);
 
@@ -126,7 +139,25 @@ const ModalCategory = ({ open, setOpen, formValue, refetch }: ModalProps) => {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Description" {...field} />
+                    <div className="w-96">
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={field.value}
+                        onReady={(editor) => {
+                          // You can store the "editor" and use when it is needed.
+                          console.log('Editor is ready to use!', editor);
+                        }}
+                        onChange={(_, editor) => {
+                          form.setValue('description', editor.getData());
+                        }}
+                        onBlur={(_, editor) => {
+                          console.log('Blur.', editor);
+                        }}
+                        onFocus={(_, editor) => {
+                          console.log('Focus.', editor);
+                        }}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

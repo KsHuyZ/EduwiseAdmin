@@ -1,3 +1,4 @@
+import { htmlDecode } from '@/utils';
 import {
   Card,
   CardContent,
@@ -65,8 +66,11 @@ const CardItem = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <CardDescription className="line-clamp-3">
-          {description}
+        <CardDescription>
+          <div
+            className="line-clamp-3"
+            dangerouslySetInnerHTML={{ __html: htmlDecode(description) }}
+          />
         </CardDescription>
       </CardContent>
     </Card>

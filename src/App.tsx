@@ -25,15 +25,15 @@ function App() {
   }, [pathname]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <HelmetProvider>
-        <ErrorBoundary fallback={<ServerError />}>
+    <ErrorBoundary fallback={<ServerError />}>
+      <QueryClientProvider client={queryClient}>
+        <HelmetProvider>
           <Router />
-        </ErrorBoundary>
-      </HelmetProvider>
-      <Toaster />
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-    </QueryClientProvider>
+        </HelmetProvider>
+        <Toaster />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

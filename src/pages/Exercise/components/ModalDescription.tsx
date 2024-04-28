@@ -19,6 +19,9 @@ import { z } from 'zod';
 import Button from '@/components/Button';
 import { Input } from '@/components/ui/input';
 import { MoveHistory } from '@/types';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { htmlDecode } from '@/utils';
 
 interface ModalProps {
   index: number | undefined;
@@ -60,7 +63,7 @@ const ModalDescription = ({
 
   useEffect(() => {
     if (typeof index === 'number') {
-      form.reset({ description: movesHistory[index].description });
+      form.reset({ description: htmlDecode(movesHistory[index].description) });
     }
   }, [index]);
 
@@ -85,7 +88,25 @@ const ModalDescription = ({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Description" {...field} />
+                    <div className="w-96">
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={field.value}
+                        onReady={(editor) => {
+                          // You can store the "editor" and use when it is needed.
+                          console.log('Editor is ready to use!', editor);
+                        }}
+                        onChange={(_, editor) => {
+                          form.setValue('description', editor.getData());
+                        }}
+                        onBlur={(_, editor) => {
+                          console.log('Blur.', editor);
+                        }}
+                        onFocus={(_, editor) => {
+                          console.log('Focus.', editor);
+                        }}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

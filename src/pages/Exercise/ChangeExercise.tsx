@@ -23,6 +23,9 @@ import { useAuth } from '@/hooks';
 import { fenRegex } from '@/constant';
 import ModalDescription from './components/ModalDescription';
 import { useChangeExercise, useExercise } from './hook';
+import { htmlDecode } from '@/utils';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -77,7 +80,10 @@ const ChangeExercise = () => {
 
   useEffect(() => {
     if (exercise) {
-      form.reset(exercise);
+      form.reset({
+        ...exercise,
+        description: htmlDecode(exercise.description),
+      });
       setFen(exercise.question);
       if (
         !exercise.question ||
@@ -172,7 +178,23 @@ const ChangeExercise = () => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Description" {...field} />
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={field.value}
+                    onReady={(editor) => {
+                      // You can store the "editor" and use when it is needed.
+                      console.log('Editor is ready to use!', editor);
+                    }}
+                    onChange={(_, editor) => {
+                      form.setValue('description', editor.getData());
+                    }}
+                    onBlur={(_, editor) => {
+                      console.log('Blur.', editor);
+                    }}
+                    onFocus={(_, editor) => {
+                      console.log('Focus.', editor);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

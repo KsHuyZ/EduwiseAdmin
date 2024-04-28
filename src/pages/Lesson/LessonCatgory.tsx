@@ -128,7 +128,7 @@ const LessonCatgory = () => {
           <div className="grid md:grid-cols-3 s:gap-3 sm:grid-cols-2 gap-2 flex-1">
             {isLoading ? (
               Array.from({ length: 12 }).map(() => (
-                <Card className="p-2">
+                <Card className="p-2" key={Math.random()}>
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-[100px]" />
                     <Skeleton className="h-4 w-full" />

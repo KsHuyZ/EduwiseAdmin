@@ -22,6 +22,9 @@ import Button from '@/components/Button';
 import { useCreateCategory } from '../hook';
 import { useAuth } from '@/hooks';
 import { Category } from '@/types/category';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { htmlDecode } from '@/utils';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -75,7 +78,12 @@ const ModalCategory = ({ open, setOpen, formValue }: ModalProps) => {
 
   useEffect(() => {
     if (formValue) {
-      form.reset(formValue);
+      form.reset({
+        ...formValue,
+        description: htmlDecode(formValue.description),
+      });
+    } else {
+      form.reset({ title: '', description: '' });
     }
   }, [formValue]);
 
@@ -112,7 +120,25 @@ const ModalCategory = ({ open, setOpen, formValue }: ModalProps) => {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="Description" {...field} />
+                    <div className="w-96">
+                      <CKEditor
+                        editor={ClassicEditor}
+                        data={field.value}
+                        onReady={(editor) => {
+                          // You can store the "editor" and use when it is needed.
+                          console.log('Editor is ready to use!', editor);
+                        }}
+                        onChange={(_, editor) => {
+                          form.setValue('description', editor.getData());
+                        }}
+                        onBlur={(_, editor) => {
+                          console.log('Blur.', editor);
+                        }}
+                        onFocus={(_, editor) => {
+                          console.log('Focus.', editor);
+                        }}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

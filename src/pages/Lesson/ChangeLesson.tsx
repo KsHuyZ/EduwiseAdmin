@@ -23,6 +23,9 @@ import { useAuth } from '@/hooks';
 import ModalDescription from './components/ModalDescription';
 import { useChangeLesson, useLesson } from './hook';
 import toast from 'react-hot-toast';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { htmlDecode } from '@/utils';
 
 const schema = z.object({
   title: z.string().min(2, {
@@ -76,7 +79,7 @@ const ChangeLesson = () => {
 
   useEffect(() => {
     if (lesson) {
-      form.reset(lesson);
+      form.reset({ ...lesson, description: htmlDecode(lesson.description) });
       setFen(lesson.question);
       if (
         !lesson.question ||
@@ -172,7 +175,25 @@ const ChangeLesson = () => {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Description" {...field} />
+                  <div className="w-full">
+                    <CKEditor
+                      editor={ClassicEditor}
+                      data={field.value}
+                      onReady={(editor) => {
+                        // You can store the "editor" and use when it is needed.
+                        console.log('Editor is ready to use!', editor);
+                      }}
+                      onChange={(_, editor) => {
+                        form.setValue('description', editor.getData());
+                      }}
+                      onBlur={(_, editor) => {
+                        console.log('Blur.', editor);
+                      }}
+                      onFocus={(_, editor) => {
+                        console.log('Focus.', editor);
+                      }}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
