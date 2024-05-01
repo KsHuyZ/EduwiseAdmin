@@ -54,7 +54,10 @@ const ChessTable = ({ setMovesHistory, game, setGame }: ChessTableProps) => {
 
   const makeMove = (move: Move) => {
     const steps = game.move(move);
-    setMovesHistory((prev) => [...prev, { ...steps, description: '' }]);
+    setMovesHistory((prev) => [
+      ...prev,
+      { ...steps, ...move, description: '' },
+    ]);
     setGame(new Chess(game.fen()));
   };
 
