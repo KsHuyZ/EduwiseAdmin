@@ -30,7 +30,7 @@ const CardItem = ({
   onDelete,
 }: CardItemProps) => {
   return (
-    <Card>
+    <Card className="h-full space-y-0">
       <CardHeader>
         <CardTitle className="flex justify-between">
           <span className="line-clamp-1">{title}</span>
