@@ -1,13 +1,23 @@
-export type PaginateResponse<T> = {
-  limit: number;
-  page: number;
-  results: T;
-  totalPages: number;
-  totalResults: number;
-};
+import { Token } from '@/types/token';
+import { TUser } from '@/types/user';
 
-export type TErrorResponse = {
-  code: number;
-  message: string;
-  stack: string;
+export type TRefreshTokenResponse = {
+  token: string;
+  refreshToken: string;
+  expires: { token: number; refreshToken: number };
+};
+export type TSignInResponse = {
+  expiresIn: {
+    token: number;
+    refreshToken: number;
+  };
+  userResponse: TUser;
+} & Token;
+
+export type TableApiResponse<T> = {
+  page: number;
+  pages: number;
+  size: number;
+  total: number;
+  items: T;
 };

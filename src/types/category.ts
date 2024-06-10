@@ -1,9 +1,4 @@
-import { User } from './user';
-
-export type Category = {
+export type TCategory = {
   id?: string;
-  title: string;
-  description: string;
-  createdBy?: string | User;
-  available?: boolean;
+  name: string;
 };

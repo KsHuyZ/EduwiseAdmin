@@ -1,3 +1,3 @@
-export * from './exercise';
 export * from './auth';
-export * from './lesson';
+export * from './user';
+export * from './course';

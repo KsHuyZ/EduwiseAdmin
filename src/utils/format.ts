@@ -9,3 +9,11 @@ export const htmlDecode = (input: string) => {
   e.innerHTML = input;
   return e.childNodes.length === 0 ? '' : e.childNodes[0].nodeValue ?? input;
 };
+
+export const formatPrice = (price?: number) => {
+  if (!price) return 'Free';
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(price);
+};

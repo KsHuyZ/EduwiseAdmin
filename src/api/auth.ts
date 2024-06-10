@@ -1,15 +1,8 @@
-import { api } from '../lib/api';
-import { AuthToken } from '../types/token';
-import { User, UserCredential } from '../types/user';
+import { api } from '@/lib/api';
+import { Token, TSignInResponse, TUserCredential } from '@/types';
 
-type AuthResponse = {
-  user: User;
-  tokens: AuthToken;
-};
-
-export const refreshToken = (token: string): Promise<AuthToken> =>
-  api.post('/auth/refresh-tokens', { refreshToken: token });
-export const login = (values: UserCredential): Promise<AuthResponse> =>
-  api.post('/auth/login-admin', values);
-export const logout = (refreshToken: string) =>
-  api.post('/auth/logout', { refreshToken });
+export const refreshToken = (token: string): Promise<Token> =>
+  api.post('/auth/refresh', `Bearer ${token}`);
+export const login = (values: TUserCredential): Promise<TSignInResponse> =>
+  api.post('/auth/login', values);
+export const logout = () => api.get('/auth/logout');

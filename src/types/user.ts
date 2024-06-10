@@ -1,10 +1,15 @@
-export interface UserCredential {
+import { ERole } from "./roles";
+
+export type TUserCredential = {
   email: string;
   password: string;
-}
-export type User = {
+  rememberMe: boolean;
+};
+export type TUser = {
   id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  name: string;
-  role: 'student' | 'teacher' | 'admin';
+  roles: ERole[];
+  avatar?: string;
 };

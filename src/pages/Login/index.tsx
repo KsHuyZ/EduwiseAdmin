@@ -1,51 +1,56 @@
-import { useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { yupResolver } from '@hookform/resolvers/yup';
-import Button from '../../components/Button';
-import { setItem } from '../../utils/storage';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Button from '@/components/Button';
+import { setItem } from '@/utils';
 import { useLogin } from './hooks';
-import { UserCredential } from '../../types/user';
-import * as yup from 'yup';
-import { useAuth } from '../../hooks';
-import Input from '../../components/Input';
+import { useAuth } from '@/hooks';
+import Input from '@/components/Input';
+import { z } from 'zod';
+import PageMetadata from '@/components/PageMetadata';
+import { TUserCredential } from '@/types';
 
-const loginSchema = yup.object().shape({
-  email: yup.string().required('Email is required').email('Invalid email'),
-  password: yup.string().required('Password is required'),
+const loginSchema = z.object({
+  email: z
+    .string({
+      required_error: 'Email is required',
+    })
+    .email('Invalid email')
+    .trim(),
+  password: z.string({ required_error: 'Password is required' }).trim(),
+  rememberMe: z.boolean(),
 });
 
 const AdminLogin = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
-  const { isLoading, mutateAsync: login, isError, error } = useLogin();
+  const { isLoading, mutateAsync: login } = useLogin();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<UserCredential>({ resolver: yupResolver(loginSchema) });
-  useEffect(() => {
-    if (isError) {
-      toast.error((error as { message: string }).message, { theme: 'colored' });
-    }
-  }, [isError]);
+  } = useForm<TUserCredential>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+  });
 
-  const onSubmit: SubmitHandler<UserCredential> = async (data) => {
+  const onSubmit: SubmitHandler<TUserCredential> = async (data) => {
     const result = await login(data);
-    if (result?.user) {
-      setUser(result.user);
-      setItem('token', result.tokens);
-      navigate('/dashboard');
-    }
+    setUser(result.userResponse);
+    setItem('token', {
+      token: result.token,
+      refreshToken: result.refreshToken,
+    });
+    navigate('/dashboard');
   };
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
-      <Helmet>
-        <title>Sign In - Chess</title>
-      </Helmet>
+      <PageMetadata title="Sign In" />
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <a
           href="#"

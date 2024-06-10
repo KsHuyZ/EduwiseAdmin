@@ -1,21 +1,11 @@
-import { lazy } from 'react';
-import LessonCategory from '@/pages/LessonCategory';
 import DefaultLayout from '@/layout/DefaultLayout';
 import Calendar from '@/pages/Calendar';
-import ECommerce from '@/pages/Dashboard/ECommerce';
-import Lesson from '@/pages/LessonCategory/pages/Lesson';
-import { ExerciseCategory } from '@/pages/ExerciseCategory';
-import ChapterExercise from '@/pages/ExerciseCategory/pages/Exercise/pages/Chapter';
-import ChapterLesson from '@/pages/LessonCategory/pages/Lesson/pages/Chapter';
-import { Exercise } from '@/pages/ExerciseCategory/pages/Exercise';
-import ChangeExercise from '@/pages/ExerciseCategory/pages/Exercise/pages/Chapter/pages/Modification';
-
-const ChangeLesson = lazy(
-  () =>
-    import(
-      '@/pages/LessonCategory/pages/Lesson/pages/Chapter/pages/ModificationChapter'
-    ),
-);
+import Category from '@/pages/Category';
+import Courses from '@/pages/Courses';
+import CourseIdPage from '@/pages/Courses/pages/CourseDetail';
+import Dashboard from '@/pages/Dashboard';
+import Student from '@/pages/Student';
+import Tag from '@/pages/Tag';
 
 export const protectedRoutes = [
   {
@@ -23,51 +13,31 @@ export const protectedRoutes = [
     children: [
       {
         path: '/dashboard',
-        element: <ECommerce />,
+        element: <Dashboard />,
       },
       {
         path: '/calendar',
         element: <Calendar />,
       },
       {
-        path: '/lesson-category',
-        element: <LessonCategory />,
+        path: '/student',
+        element: <Student />,
       },
       {
-        path: '/lesson-category/:categoryId',
-        element: <Lesson />,
+        path: '/courses',
+        element: <Courses />,
       },
       {
-        path: '/lesson-category/:categoryId/:lessonId',
-        element: <ChapterLesson />,
+        path: '/courses/:courseId',
+        element: <CourseIdPage />,
       },
       {
-        path: '/lesson-category/:categoryId/:lessonId/create',
-        element: <ChangeLesson />,
+        path: '/categories',
+        element: <Category />,
       },
       {
-        path: '/lesson-category/:categoryId/:lessonId/:id/edit',
-        element: <ChangeLesson />,
-      },
-      {
-        path: '/exercise-category',
-        element: <ExerciseCategory />,
-      },
-      {
-        path: '/exercise-category/:categoryId',
-        element: <Exercise />,
-      },
-      {
-        path: '/exercise-category/:categoryId/:exerciseId',
-        element: <ChapterExercise />,
-      },
-      {
-        path: '/exercise-category/:categoryId/:exerciseId/create',
-        element: <ChangeExercise />,
-      },
-      {
-        path: '/exercise-category/:categoryId/:exerciseId/:id/edit',
-        element: <ChangeExercise />,
+        path: '/tags',
+        element: <Tag />,
       },
     ],
   },

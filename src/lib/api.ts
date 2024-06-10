@@ -6,7 +6,7 @@ import {
 } from './interceptors';
 const BASE_URL = import.meta.env.VITE_API_END_POINT as string;
 const axiosRequestConfig: AxiosRequestConfig = {
-  baseURL: `${BASE_URL}/v1`,
+  baseURL: `${BASE_URL}`,
   responseType: 'json',
   headers: {
     'Content-Type': 'application/json',

@@ -4,8 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import UserOne from '../../images/user/user-01.png';
 import { useAuth } from '../../hooks';
 import { logout } from '@/api/auth';
-import { getItem } from '@/utils/storage';
-import { AuthToken } from '@/types/token';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -41,9 +39,6 @@ const DropdownUser = () => {
   });
 
   const handleSignOut = async () => {
-    const items = getItem('token') as AuthToken;
-    const { refresh } = items;
-    await logout(refresh.token);
     navigate('/login');
   };
 
