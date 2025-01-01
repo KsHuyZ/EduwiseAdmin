@@ -12,8 +12,10 @@ export const htmlDecode = (input: string) => {
 
 export const formatPrice = (price?: number) => {
   if (!price) return 'Free';
-  return new Intl.NumberFormat('vi-VN', {
+  return price.toLocaleString('en-US', {
     style: 'currency',
-    currency: 'VND',
-  }).format(price);
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
 };

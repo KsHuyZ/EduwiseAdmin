@@ -7,7 +7,7 @@ interface PageMetadataProps {
 const PageMetadata: React.FC<PageMetadataProps> = ({ title }) => {
   return (
     <Helmet>
-      <title>{title ? `${title} -` : ''} Eduwise</title>
+      <title>{title ? `${title} -` : ''} DreamLMS</title>
     </Helmet>
   );
 };

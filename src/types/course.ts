@@ -1,4 +1,5 @@
-import { EStatusAdmin, TCategory, TImageType, TTag, TUser } from '@/types';
+import { TCategory, TImage, TTag, TUser } from '@/types';
+import { ELevel } from './level';
 
 export type CourseCredentials = {
   id?: string;
@@ -13,17 +14,40 @@ export type CourseCredentials = {
   status?: string;
 };
 
+export type TCourseVideo = {
+  id: string;
+  video: TVideo;
+};
+
+export enum ECourseStatus {
+  Publish = 'publish',
+  Draft = 'draft',
+  Block = 'block',
+}
+
 export type TCourse = {
   id: string;
+  image: TImage;
   name: string;
-  price: number;
+  video?: TVideo;
   description: string;
-  file: TImageType;
-  categories: TCategory[];
-  status: EStatusAdmin;
+  shortDescription: string;
+  createdBy: TUser;
+  level: ELevel;
+  status: ECourseStatus;
   tags: TTag[];
-  chapters?: TLesson[];
-  userResponse: TUser;
+  categories: TCategory[];
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  rate?: number;
+  lessons: number;
+  deletedAt?: string;
+  price: number;
+  duration: number;
+  courseVideo?: TCourseVideo;
+  related?: TCourse[];
+  ethPrice?: string;
 };
 
 export type Video = {

@@ -1,7 +1,15 @@
 import { api } from '@/lib/api';
-import { TUser, TableApiResponse } from '@/types';
+import { StatusEnum, TUser, TableApiResponse } from '@/types';
 
-export const getUsers = async (): Promise<TableApiResponse<TUser[]>> =>
-  api.get('/admin/users');
+export const getUsers = ({
+  pageParam = 1,
+}): Promise<TableApiResponse<TUser[]>> =>
+  api.get('/users?page=' + pageParam + '&limit=20');
 
-export const changeStatusUser = (id: string) => api.patch(`/admin/users/${id}`);
+export const changeStatusUser = ({
+  id,
+  status,
+}: {
+  id: string;
+  status: StatusEnum;
+}) => api.put(`/users/${id}/status`, { status });

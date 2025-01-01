@@ -1,8 +1,21 @@
 import { changeStatusUser, getUsers } from '@/api';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { StatusEnum } from '@/types';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 
 export const useUsers = () =>
-  useQuery({ queryKey: ['users'], queryFn: getUsers });
+  useInfiniteQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+  });
 
 export const useUpdateUser = () =>
-  useMutation({ mutationFn: (id: string) => changeStatusUser(id) });
+  useMutation({
+    mutationFn: ({ id, status }: { id: string; status: StatusEnum }) =>
+      changeStatusUser({ id, status }),
+  });

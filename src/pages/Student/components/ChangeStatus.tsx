@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import Button from '@/components/Button';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -8,11 +8,42 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Check, X } from 'lucide-react';
+import { EllipsisVertical } from 'lucide-react';
 import { useState } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { StatusEnum } from '@/types';
+import { useUserAction } from './hooks';
+import toast from 'react-hot-toast';
 
-const ChangeStatus = () => {
+interface Props {
+  status: StatusEnum;
+  id: string;
+  refetch: () => void;
+}
+
+const ChangeStatus: React.FC<Props> = ({ status, id, refetch }) => {
   const [open, setOpen] = useState(false);
+  const { mutateAsync, isLoading } = useUserAction();
+
+  const onSubmit = async () => {
+    await mutateAsync({
+      id,
+      status:
+        status === StatusEnum.BLOCK ? StatusEnum.ACTIVE : StatusEnum.BLOCK,
+    });
+    refetch();
+    setOpen(false);
+    toast.success('User status has been changed');
+  };
+
   return (
     <>
       <AlertDialog open={open} onOpenChange={setOpen}>
@@ -20,25 +51,34 @@ const ChangeStatus = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              This action cannot be undone. This will{' '}
+              {status === StatusEnum.BLOCK ? 'active' : 'block'} user
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button>Continue</Button>
+            <Button isLoading={isLoading} onClick={onSubmit}>
+              Continue
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {Math.random() > 0.5 ? (
-        <Button variant={'ghost'} onClick={() => setOpen(true)}>
-          <X size={20} className="text-red-600" />
-        </Button>
-      ) : (
-        <Button variant={'ghost'} onClick={() => setOpen(true)}>
-          <Check size={20} className="text-emerald-600" />
-        </Button>
-      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant={'ghost'} onClick={() => setOpen(true)}>
+            <EllipsisVertical className="w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel>Action</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              {status === StatusEnum.BLOCK ? 'Active' : 'Block'}
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 };

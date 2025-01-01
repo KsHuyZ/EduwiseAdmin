@@ -10,10 +10,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
-import { EStatusAdmin } from '@/types';
+import { ECourseStatus, EStatusAdmin } from '@/types';
 
 interface IChangeStatus {
-  status: EStatusAdmin;
+  status: ECourseStatus;
 }
 
 const ChangeStatus = ({ status }: IChangeStatus) => {
@@ -35,7 +35,7 @@ const ChangeStatus = ({ status }: IChangeStatus) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      {status === EStatusAdmin.CHECKED ? (
+      {status === ECourseStatus.Publish || status === ECourseStatus.Draft ? (
         <Button variant={'ghost'} onClick={() => setOpen(true)}>
           <X size={20} className="text-red-600" />
         </Button>
